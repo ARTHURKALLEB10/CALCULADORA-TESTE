@@ -1,10 +1,9 @@
-Aqui está o código completo! Salve como index.html:
-html<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora</title>
+    <title>Calculadora Científica</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -22,7 +21,7 @@ html<!DOCTYPE html>
             border: 1px solid #ccc;
             border-radius: 12px;
             padding: 20px;
-            width: 300px;
+            width: 620px;
         }
 
         .display {
@@ -39,6 +38,18 @@ html<!DOCTYPE html>
             color: #888;
             min-height: 18px;
             margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .hist-expr { flex: 1; text-align: right; }
+
+        #modeIndicator {
+            font-size: 11px;
+            color: #5a0a8a;
+            font-weight: bold;
+            margin-right: 8px;
         }
 
         .result {
@@ -48,6 +59,18 @@ html<!DOCTYPE html>
             word-break: break-all;
         }
 
+        .panels {
+            display: flex;
+            gap: 10px;
+        }
+
+        .grid-sci {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            flex: 1;
+        }
+
         .grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -55,10 +78,10 @@ html<!DOCTYPE html>
         }
 
         .btn {
-            padding: 16px 8px;
+            padding: 14px 6px;
             border: 1px solid #bbb;
             border-radius: 8px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 500;
             cursor: pointer;
             background: #fff;
@@ -92,68 +115,169 @@ html<!DOCTYPE html>
             border-color: #f0c060;
         }
 
+        .btn-sci {
+            background: #e8f4e8;
+            color: #1a5c1a;
+            border-color: #90c890;
+            font-size: 13px;
+            padding: 10px 4px;
+        }
+
+        .btn-const {
+            background: #f5eeff;
+            color: #5a0a8a;
+            border-color: #c8a0f0;
+            font-size: 13px;
+            padding: 10px 4px;
+        }
+
         .span2 { grid-column: span 2; }
     </style>
 </head>
 <body>
     <div class="calc">
         <div class="display">
-            <div class="hist" id="hist"></div>
+            <div class="hist" id="hist">
+                <span id="modeIndicator">° DEG</span>
+                <span class="hist-expr" id="histExpr"></span>
+            </div>
             <div class="result" id="res">0</div>
         </div>
-        <div class="grid">
-            <button class="btn btn-ac" onclick="limpar()">AC</button>
-            <button class="btn btn-cl" onclick="apagar()">⌫</button>
-            <button class="btn btn-op" onclick="add('%')">%</button>
-            <button class="btn btn-op" onclick="add('/')">÷</button>
+        <div class="panels">
+            <!-- Painel científico (esquerda) -->
+            <div class="grid-sci">
+                <button class="btn btn-const span2" id="modeBtn" onclick="toggleMode()">DEG</button>
+                <button class="btn btn-const" onclick="add('PI')">π</button>
+                <button class="btn btn-const" onclick="add('E')">e</button>
+                <button class="btn btn-sci" onclick="add('(')">(</button>
 
-            <button class="btn" onclick="add('7')">7</button>
-            <button class="btn" onclick="add('8')">8</button>
-            <button class="btn" onclick="add('9')">9</button>
-            <button class="btn btn-op" onclick="add('*')">×</button>
+                <button class="btn btn-sci" onclick="add('_sin(')">sin</button>
+                <button class="btn btn-sci" onclick="add('_cos(')">cos</button>
+                <button class="btn btn-sci" onclick="add('_tan(')">tan</button>
+                <button class="btn btn-sci" onclick="add('_ln(')">ln</button>
+                <button class="btn btn-sci" onclick="add('_log(')">log</button>
 
-            <button class="btn" onclick="add('4')">4</button>
-            <button class="btn" onclick="add('5')">5</button>
-            <button class="btn" onclick="add('6')">6</button>
-            <button class="btn btn-op" onclick="add('-')">−</button>
+                <button class="btn btn-sci" onclick="add('_asin(')">asin</button>
+                <button class="btn btn-sci" onclick="add('_acos(')">acos</button>
+                <button class="btn btn-sci" onclick="add('_atan(')">atan</button>
+                <button class="btn btn-sci" onclick="add('_pow10(')">10ˣ</button>
+                <button class="btn btn-sci" onclick="add(')')">)</button>
 
-            <button class="btn" onclick="add('1')">1</button>
-            <button class="btn" onclick="add('2')">2</button>
-            <button class="btn" onclick="add('3')">3</button>
-            <button class="btn btn-op" onclick="add('+')">+</button>
+                <button class="btn btn-sci" onclick="wrapLast('_sq')">x²</button>
+                <button class="btn btn-sci" onclick="add('_sqrt(')">√</button>
+                <button class="btn btn-op" onclick="add('**')">xʸ</button>
+                <button class="btn btn-sci" onclick="wrapLast('_fact')">n!</button>
+                <button class="btn btn-sci" onclick="wrapLast('_inv')">1/x</button>
+            </div>
 
-            <button class="btn span2" onclick="add('0')">0</button>
-            <button class="btn" onclick="ponto()">.</button>
-            <button class="btn btn-eq" onclick="calcular()">=</button>
+            <!-- Painel básico (direita) -->
+            <div class="grid">
+                <button class="btn btn-ac" onclick="limpar()">AC</button>
+                <button class="btn btn-cl" onclick="apagar()">⌫</button>
+                <button class="btn btn-op" onclick="add('%')">%</button>
+                <button class="btn btn-op" onclick="add('/')">÷</button>
+
+                <button class="btn" onclick="add('7')">7</button>
+                <button class="btn" onclick="add('8')">8</button>
+                <button class="btn" onclick="add('9')">9</button>
+                <button class="btn btn-op" onclick="add('*')">×</button>
+
+                <button class="btn" onclick="add('4')">4</button>
+                <button class="btn" onclick="add('5')">5</button>
+                <button class="btn" onclick="add('6')">6</button>
+                <button class="btn btn-op" onclick="add('-')">−</button>
+
+                <button class="btn" onclick="add('1')">1</button>
+                <button class="btn" onclick="add('2')">2</button>
+                <button class="btn" onclick="add('3')">3</button>
+                <button class="btn btn-op" onclick="add('+')">+</button>
+
+                <button class="btn span2" onclick="add('0')">0</button>
+                <button class="btn" onclick="ponto()">.</button>
+                <button class="btn btn-eq" onclick="calcular()">=</button>
+            </div>
         </div>
     </div>
 
     <script>
-        let expr = '', novo = true;
+        let expr = '', novo = true, degMode = true;
         const res = document.getElementById('res');
-        const hist = document.getElementById('hist');
+        const histExpr = document.getElementById('histExpr');
 
-        function atualizar(v) { res.textContent = v || '0'; }
+        function toRad(x) { return degMode ? x * Math.PI / 180 : x; }
+        function fromRad(x) { return degMode ? x * 180 / Math.PI : x; }
+
+        function toggleMode() {
+            degMode = !degMode;
+            document.getElementById('modeBtn').textContent = degMode ? 'DEG' : 'RAD';
+            atualizar(expr || '0');
+        }
+
+        function factorial(n) {
+            n = Math.round(n);
+            if (n < 0 || n > 170) return NaN;
+            if (n <= 1) return 1;
+            let r = 1;
+            for (let i = 2; i <= n; i++) r *= i;
+            return r;
+        }
+
+        function wrapLast(fn) {
+            const m = expr.match(/([\d.]+|\))$/);
+            if (!m) return;
+            const token = m[1];
+            expr = expr.slice(0, expr.length - token.length) + fn + '(' + token + ')';
+            atualizar(expr);
+        }
+
+        function atualizar(v) {
+            res.textContent = v || '0';
+            document.getElementById('modeIndicator').textContent = degMode ? '° DEG' : 'RAD';
+        }
 
         function add(n) {
-            if (novo && !'+-*/%'.includes(n)) { expr = n; novo = false; }
+            const isOperator = '+-*/%'.includes(n) || n === '**' || n.endsWith('(') || n === '(';
+            if (novo && !isOperator) { expr = n; novo = false; }
             else { if (novo) novo = false; expr += n; }
             atualizar(expr);
         }
 
-        function limpar() { expr = ''; novo = true; hist.textContent = ''; atualizar('0'); }
+        function limpar() { expr = ''; novo = true; histExpr.textContent = ''; atualizar('0'); }
 
         function apagar() { expr = expr.slice(0, -1); atualizar(expr || '0'); }
 
         function ponto() {
-            const parts = expr.split(/[\+\-\*\/]/);
+            const parts = expr.split(/[\+\-\*\/\(\)]/);
             if (!parts[parts.length - 1].includes('.')) { expr += '.'; atualizar(expr); }
         }
 
         function calcular() {
             try {
-                hist.textContent = expr.replace(/\*/g, '×').replace(/\//g, '÷') + ' =';
-                let r = Function('"use strict"; return (' + expr + ')')();
+                const display = expr
+                    .replace(/_sin\(/g, 'sin(').replace(/_cos\(/g, 'cos(').replace(/_tan\(/g, 'tan(')
+                    .replace(/_asin\(/g, 'asin(').replace(/_acos\(/g, 'acos(').replace(/_atan\(/g, 'atan(')
+                    .replace(/_log\(/g, 'log(').replace(/_ln\(/g, 'ln(').replace(/_pow10\(/g, '10^(')
+                    .replace(/_sqrt\(/g, '√(').replace(/_sq\(/g, 'sq(').replace(/_fact\(/g, 'n!(')
+                    .replace(/_inv\(/g, '1/(').replace(/\*\*/g, '^').replace(/\*/g, '×').replace(/\//g, '÷');
+                histExpr.textContent = display + ' =';
+                const ctx = {
+                    _sin: x => Math.sin(toRad(x)),
+                    _cos: x => Math.cos(toRad(x)),
+                    _tan: x => Math.tan(toRad(x)),
+                    _asin: x => fromRad(Math.asin(x)),
+                    _acos: x => fromRad(Math.acos(x)),
+                    _atan: x => fromRad(Math.atan(x)),
+                    _log: x => Math.log10(x),
+                    _ln:  x => Math.log(x),
+                    _fact: factorial,
+                    _pow10: x => Math.pow(10, x),
+                    _sqrt: x => Math.sqrt(x),
+                    _sq:  x => x * x,
+                    _inv: x => 1 / x,
+                    PI: Math.PI,
+                    E:  Math.E,
+                };
+                let r = new Function(...Object.keys(ctx), '"use strict"; return (' + expr + ')')(...Object.values(ctx));
                 r = parseFloat(r.toFixed(10));
                 atualizar(r);
                 expr = String(r);
