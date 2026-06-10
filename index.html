@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Científica</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+
+        .calc {
+            background: #e8e8e8;
+            border: 1px solid #ccc;
+            border-radius: 12px;
+            padding: 20px;
+            width: 620px;
+        }
+
+        .display {
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            text-align: right;
+        }
+
+        .hist {
+            font-size: 13px;
+            color: #888;
+            min-height: 18px;
+            margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .hist-expr { flex: 1; text-align: right; }
+
+        #modeIndicator {
+            font-size: 11px;
+            color: #5a0a8a;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .result {
+            font-size: 32px;
+            font-weight: 500;
+            color: #111;
+            word-break: break-all;
+        }
+
+        .panels {
+            display: flex;
+            gap: 10px;
+        }
+
+        .grid-sci {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            flex: 1;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 14px 6px;
+            border: 1px solid #bbb;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            background: #fff;
+            color: #111;
+            transition: transform 0.08s;
+        }
+
+        .btn:active { transform: scale(0.95); }
+
+        .btn-op {
+            background: #dceeff;
+            color: #0a4a8a;
+            border-color: #a0c4f0;
+        }
+
+        .btn-eq {
+            background: #fff;
+            border: 2px solid #a0c4f0;
+            color: #0a4a8a;
+        }
+
+        .btn-cl {
+            background: #fde8e8;
+            color: #a32d2d;
+            border-color: #f0a0a0;
+        }
+
+        .btn-ac {
+            background: #fef3d8;
+            color: #7a4f00;
+            border-color: #f0c060;
+        }
+
+        .btn-sci {
+            background: #e8f4e8;
+            color: #1a5c1a;
+            border-color: #90c890;
+            font-size: 13px;
+            padding: 10px 4px;
+        }
+
+        .btn-const {
+            background: #f5eeff;
+            color: #5a0a8a;
+            border-color: #c8a0f0;
+            font-size: 13px;
+            padding: 10px 4px;
+        }
+
+        .span2 { grid-column: span 2; }
+    </style>
+</head>
+<body>
+    <div class="calc">
+        <div class="display">
+            <div class="hist" id="hist">
+                <span id="modeIndicator">° DEG</span>
+                <span class="hist-expr" id="histExpr"></span>
+            </div>
+            <div class="result" id="res">0</div>
+        </div>
+        <div class="panels">
+            <!-- Painel científico (esquerda) -->
+            <div class="grid-sci">
+                <button class="btn btn-const span2" id="modeBtn" onclick="toggleMode()">DEG</button>
+                <button class="btn btn-const" onclick="add('PI')">π</button>
+                <button class="btn btn-const" onclick="add('E')">e</button>
+                <button class="btn btn-sci" onclick="add('(')">(</button>
+
+                <button class="btn btn-sci" onclick="add('_sin(')">sin</button>
+                <button class="btn btn-sci" onclick="add('_cos(')">cos</button>
+                <button class="btn btn-sci" onclick="add('_tan(')">tan</button>
+                <button class="btn btn-sci" onclick="add('_ln(')">ln</button>
+                <button class="btn btn-sci" onclick="add('_log(')">log</button>
+
+                <button class="btn btn-sci" onclick="add('_asin(')">asin</button>
+                <button class="btn btn-sci" onclick="add('_acos(')">acos</button>
+                <button class="btn btn-sci" onclick="add('_atan(')">atan</button>
+                <button class="btn btn-sci" onclick="add('_pow10(')">10ˣ</button>
+                <button class="btn btn-sci" onclick="add(')')">)</button>
+
+                <button class="btn btn-sci" onclick="wrapLast('_sq')">x²</button>
+                <button class="btn btn-sci" onclick="add('_sqrt(')">√</button>
+                <button class="btn btn-op" onclick="add('**')">xʸ</button>
+                <button class="btn btn-sci" onclick="wrapLast('_fact')">n!</button>
+                <button class="btn btn-sci" onclick="wrapLast('_inv')">1/x</button>
+            </div>
+
+            <!-- Painel básico (direita) -->
+            <div class="grid">
+                <button class="btn btn-ac" onclick="limpar()">AC</button>
+                <button class="btn btn-cl" onclick="apagar()">⌫</button>
+                <button class="btn btn-op" onclick="add('%')">%</button>
+                <button class="btn btn-op" onclick="add('/')">÷</button>
+
+                <button class="btn" onclick="add('7')">7</button>
+                <button class="btn" onclick="add('8')">8</button>
+                <button class="btn" onclick="add('9')">9</button>
+                <button class="btn btn-op" onclick="add('*')">×</button>
+
+                <button class="btn" onclick="add('4')">4</button>
+                <button class="btn" onclick="add('5')">5</button>
+                <button class="btn" onclick="add('6')">6</button>
+                <button class="btn btn-op" onclick="add('-')">−</button>
+
+                <button class="btn" onclick="add('1')">1</button>
+                <button class="btn" onclick="add('2')">2</button>
+                <button class="btn" onclick="add('3')">3</button>
+                <button class="btn btn-op" onclick="add('+')">+</button>
+
+                <button class="btn span2" onclick="add('0')">0</button>
+                <button class="btn" onclick="ponto()">.</button>
+                <button class="btn btn-eq" onclick="calcular()">=</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="dist/calculadora.js"></script>
+</body>
+</html>
